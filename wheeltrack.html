@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080b10">
+<title>WheelTrack — HOOD Wheel Strategy</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#080b10;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
+input,select{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:11px 14px;color:#fff;font-size:15px;font-weight:600;width:100%;outline:none;transition:border-color .2s;-webkit-appearance:none}
+input:focus,select:focus{border-color:#00ff87}
+select option{background:#1a1f2e}
+.btn{display:block;width:100%;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;transition:opacity .2s,transform .1s}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:linear-gradient(135deg,#00ff87,#00d4ff);color:#000}
+.btn-ghost{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;font-weight:600;font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer;display:inline-block;width:auto}
+.card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:20px;margin-bottom:14px}
+.label{font-size:10px;color:rgba(255,255,255,0.45);display:block;margin-bottom:6px;letter-spacing:.8px;font-weight:600;text-transform:uppercase}
+.green{color:#00ff87}.blue{color:#60efff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.row:last-child{border-bottom:none}
+.tab-content{display:none}.tab-content.active{display:block}
+.tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,0.06)}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.4);font-weight:400;font-size:12px;padding:8px 14px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:color .2s}
+.tab-btn.active{color:#00ff87;border-bottom-color:#00ff87;font-weight:700}
+.lot-row{display:flex;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05);flex-wrap:wrap}
+.lot-row:last-child{border-bottom:none}
+.src-btn{flex:1;padding:10px 0;border-radius:10px;border:1px solid transparent;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);font-weight:700;font-size:13px;cursor:pointer;transition:all .2s}
+.src-btn.active-bought{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.3);color:#fff}
+.src-btn.active-premium{background:rgba(0,255,135,0.1);border-color:rgba(0,255,135,0.4);color:#00ff87}
+.progress-bar{background:rgba(255,255,255,0.08);border-radius:99px;height:8px;overflow:hidden;margin:10px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,#00ff87,#60efff);border-radius:99px;transition:width .6s ease}
+.phase-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.phase-row:last-child{border-bottom:none}
+.phase-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.hero-card{background:linear-gradient(135deg,#0a1f14,#091525);border:1px solid rgba(0,255,135,0.2);border-radius:20px;padding:24px;margin-bottom:14px}
+.summary-card{background:linear-gradient(135deg,#0a1f14,#091525);border:1px solid rgba(0,255,135,0.2);border-radius:18px;padding:20px;margin-bottom:14px}
+.caption-box{background:rgba(0,0,0,0.5);border-radius:12px;padding:14px;font-family:monospace;font-size:12px;line-height:1.8;color:rgba(255,255,255,0.8);white-space:pre-line;margin-bottom:8px;word-break:break-word}
+.copy-btn{background:rgba(255,255,255,0.08);border:none;border-radius:8px;padding:8px 16px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;margin-bottom:16px}
+.copy-btn.copied{background:linear-gradient(135deg,#00ff87,#00d4ff);color:#000}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 8px;color:rgba(255,255,255,0.35);font-weight:600;font-size:10px;letter-spacing:.5px;border-bottom:1px solid rgba(255,255,255,0.08)}
+td{padding:11px 8px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.small-input{width:75px;font-size:14px;padding:8px 10px}
+.remove-btn{background:none;border:none;color:#ff4444;cursor:pointer;font-size:11px;padding:2px 0;display:block}
+.idea-row{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.idea-row:last-child{border-bottom:none}
+.landing{max-width:700px;margin:0 auto;padding:20px}
+.lp-hero{text-align:center;padding:60px 0 40px}
+.lp-h1{font-size:clamp(32px,7vw,56px);font-weight:900;line-height:1.05;background:linear-gradient(160deg,#fff 40%,rgba(0,255,135,0.7));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:18px}
+.lp-p{font-size:16px;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:32px}
+.lp-btn{display:inline-block;background:linear-gradient(135deg,#00ff87,#00d4ff);border-radius:14px;padding:15px 36px;color:#000;text-decoration:none;font-weight:800;font-size:16px;cursor:pointer;border:none}
+.step-card{display:flex;gap:16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:20px;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<!-- LANDING PAGE -->
+<div id="page-landing">
+  <nav style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;max-width:700px;margin:0 auto">
+    <div style="font-size:18px;font-weight:900;background:linear-gradient(90deg,#fff,rgba(0,255,135,0.8));-webkit-background-clip:text;-webkit-text-fill-color:transparent">WheelTrack</div>
+    <button class="btn-ghost" onclick="showTracker()">Open Tracker →</button>
+  </nav>
+  <div class="landing">
+    <div class="lp-hero">
+      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,255,135,0.1);border:1px solid rgba(0,255,135,0.2);border-radius:99px;padding:5px 14px;font-size:11px;color:#00ff87;font-weight:700;letter-spacing:1px;margin-bottom:24px">🔄 OPTIONS WHEEL STRATEGY</div>
+      <div class="lp-h1">Watch the snowball<br>build in real time.</div>
+      <p class="lp-p">Tracking a live HOOD wheel strategy — selling covered calls weekly, reinvesting every dollar of premium into more shares. Follow every lot, every week, every milestone.</p>
+      <button class="lp-btn" onclick="showTracker()">Open the Tracker →</button>
+    </div>
+    <div style="background:linear-gradient(135deg,#0a1f14,#091525);border:1px solid rgba(0,255,135,0.15);border-radius:20px;padding:28px;margin-bottom:40px">
+      <div style="font-size:10px;color:rgba(0,255,135,0.6);letter-spacing:1.2px;font-weight:700;margin-bottom:20px">HOW THE MATH WORKS</div>
+      <div class="grid3" style="margin-bottom:20px">
+        <div style="text-align:center"><div style="font-size:26px;font-weight:900">100</div><div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">shares to start</div></div>
+        <div style="text-align:center"><div style="font-size:26px;font-weight:900;color:#00ff87">$200</div><div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">premium per week</div></div>
+        <div style="text-align:center"><div style="font-size:26px;font-weight:900;color:#60efff">~13mo</div><div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">to 200 shares</div></div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:16px"></div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;text-align:center">$200/wk ÷ $106/share = ~1.9 new shares every week.<br><span style="color:rgba(0,255,135,0.7)">At 200 shares: 2 contracts → $400/wk. The pace doubles.</span></div>
+    </div>
+    <div style="margin-bottom:40px">
+      <div style="font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1.2px;font-weight:700;text-align:center;margin-bottom:8px">THE STRATEGY</div>
+      <h2 style="font-size:26px;font-weight:900;text-align:center;margin-bottom:24px">How the wheel works</h2>
+      <div class="step-card"><div style="font-size:11px;font-weight:800;color:rgba(0,255,135,0.5);letter-spacing:1px;flex-shrink:0;margin-top:3px">01</div><div><div style="font-size:15px;font-weight:700;margin-bottom:5px">Own 100 shares of HOOD</div><div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6">You need at least 100 shares to sell one covered call contract. That's the starting block.</div></div></div>
+      <div class="step-card"><div style="font-size:11px;font-weight:800;color:rgba(0,255,135,0.5);letter-spacing:1px;flex-shrink:0;margin-top:3px">02</div><div><div style="font-size:15px;font-weight:700;margin-bottom:5px">Sell a covered call weekly</div><div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6">Pick a strike price above current price. Collect ~$200 in premium instantly. The buyer pays you for the right to buy your shares.</div></div></div>
+      <div class="step-card"><div style="font-size:11px;font-weight:800;color:rgba(0,255,135,0.5);letter-spacing:1px;flex-shrink:0;margin-top:3px">03</div><div><div style="font-size:15px;font-weight:700;margin-bottom:5px">Reinvest 100% of premium</div><div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6">Every dollar goes back into more HOOD shares. At $106/share, $200 buys ~1.9 shares per week.</div></div></div>
+      <div class="step-card"><div style="font-size:11px;font-weight:800;color:rgba(0,255,135,0.5);letter-spacing:1px;flex-shrink:0;margin-top:3px">04</div><div><div style="font-size:15px;font-weight:700;margin-bottom:5px">Watch contracts compound</div><div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6">At 200 shares: 2 contracts → $400/week. At 300 shares: $600/week. Each milestone accelerates the next.</div></div></div>
+    </div>
+    <div style="text-align:center;padding-bottom:60px">
+      <p style="font-size:13px;color:rgba(255,255,255,0.3);margin-bottom:16px">Your data saves to your device. Nothing leaves your browser.</p>
+      <button class="lp-btn" onclick="showTracker()">Start Tracking →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKER APP -->
+<div id="page-tracker" style="display:none;min-height:100vh">
+  <!-- Sticky header -->
+  <div style="background:linear-gradient(180deg,#0d1117,#080b10);border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;z-index:100">
+    <div style="max-width:680px;margin:0 auto;padding:14px 16px 0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="background:linear-gradient(135deg,#00ff87,#60efff);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:800;color:#000;letter-spacing:1px">LIVE</div>
+            <span style="color:rgba(255,255,255,0.35);font-size:12px">HOOD Options Wheel</span>
+          </div>
+          <div style="font-size:20px;font-weight:900;margin-top:2px;background:linear-gradient(90deg,#fff 50%,rgba(0,255,135,0.6));-webkit-background-clip:text;-webkit-text-fill-color:transparent">WheelTrack</div>
+        </div>
+        <button class="btn-ghost" onclick="showLanding()" style="font-size:11px;padding:7px 12px">← Home</button>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+        <button class="tab-btn" onclick="switchTab('positions',this)">📦 Positions</button>
+        <button class="tab-btn" onclick="switchTab('milestones',this)">🎯 Milestones</button>
+        <button class="tab-btn" onclick="switchTab('tenyear',this)">📈 10-Year</button>
+        <button class="tab-btn" onclick="switchTab('content',this)">📱 Content</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:680px;margin:0 auto;padding:18px 16px 80px">
+
+    <!-- DASHBOARD TAB -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="hero-card">
+        <div style="font-size:10px;color:rgba(0,255,135,0.7);letter-spacing:1.2px;font-weight:700;margin-bottom:18px">YOUR POSITION</div>
+        <div class="grid3" style="margin-bottom:20px">
+          <div><div class="label">TOTAL SHARES</div><div style="font-size:22px;font-weight:900" id="d-total-shares">100.0</div></div>
+          <div><div class="label">BLENDED AVG</div><div style="font-size:22px;font-weight:900;color:#00ff87" id="d-avg-cost">$106.00</div></div>
+          <div><div class="label">WEEKLY INCOME</div><div style="font-size:22px;font-weight:900;color:#60efff" id="d-weekly">$200</div></div>
+        </div>
+        <div class="grid2">
+          <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:12px 14px">
+            <div class="label">💵 PURCHASED</div>
+            <div style="font-size:20px;font-weight:800" id="d-bought-shares">100.0</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:3px">avg <span style="color:#fff;font-weight:700" id="d-bought-avg">$106.00</span></div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:1px" id="d-bought-cost">$10,600 deployed</div>
+          </div>
+          <div style="background:rgba(0,255,135,0.07);border:1px solid rgba(0,255,135,0.15);border-radius:12px;padding:12px 14px">
+            <div class="label" style="color:rgba(0,255,135,0.7)">🔄 FROM PREMIUM</div>
+            <div style="font-size:20px;font-weight:800;color:#00ff87" id="d-prem-shares">0.0</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:3px">avg <span style="color:#00ff87;font-weight:700" id="d-prem-avg">—</span></div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:1px" id="d-prem-note">add premium lots</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid3" style="margin-bottom:14px">
+        <div class="card" style="margin-bottom:0;padding:14px 16px"><div class="label">CONTRACTS</div><div style="font-size:20px;font-weight:800" id="d-contracts">1</div><div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px" id="d-contracts-sub">100 shares</div></div>
+        <div class="card" style="margin-bottom:0;padding:14px 16px"><div class="label">ANNUAL</div><div style="font-size:20px;font-weight:800;color:#00ff87" id="d-annual">$10.4K</div><div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px">at current pace</div></div>
+        <div class="card" style="margin-bottom:0;padding:14px 16px"><div class="label">YIELD/COST</div><div style="font-size:20px;font-weight:800;color:#60efff" id="d-yield">98%</div><div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px">annual premium</div></div>
+      </div>
+
+      <div class="card">
+        <div class="grid2">
+          <div><div class="label">MARKET VALUE</div><div style="font-size:18px;font-weight:800" id="d-mkt-val">$10,600</div></div>
+          <div><div class="label">UNREALIZED P&amp;L</div><div style="font-size:18px;font-weight:800" id="d-pl">$0</div><div style="font-size:11px;margin-top:2px" id="d-pl-pct">0.0%</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700">Progress to 200 Shares</div>
+          <div style="font-size:13px;color:#00ff87;font-weight:700" id="d-progress-pct">50%</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="d-progress-fill" style="width:50%"></div></div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-size:12px;color:rgba(255,255,255,0.4)" id="d-progress-label">100 / 200 shares</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.4)" id="d-weeks-to">~53 weeks</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label" style="margin-bottom:14px">COMPOUNDING PHASES</div>
+        <div id="phases-list"></div>
+      </div>
+    </div>
+
+    <!-- POSITIONS TAB -->
+    <div id="tab-positions" class="tab-content">
+      <div class="card">
+        <div class="label" style="color:rgba(0,255,135,0.7);margin-bottom:14px">STRATEGY SETTINGS</div>
+        <div class="grid2">
+          <div><label class="label">HOOD PRICE ($)</label><input type="number" id="s-hood-price" value="106" oninput="saveAndRender()"></div>
+          <div><label class="label">PREMIUM/CONTRACT/WK ($)</label><input type="number" id="s-premium" value="200" oninput="saveAndRender()"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label" style="color:rgba(0,255,135,0.7);margin-bottom:14px">ADD A SHARE LOT</div>
+        <div class="grid2" style="margin-bottom:10px">
+          <div><label class="label">SHARES</label><input type="number" id="new-shares" placeholder="e.g. 100"></div>
+          <div><label class="label">PRICE PAID ($)</label><input type="number" id="new-price" placeholder="e.g. 106.50"></div>
+          <div><label class="label">DATE</label><input type="date" id="new-date"></div>
+          <div><label class="label">NOTE (optional)</label><input type="text" id="new-note" placeholder="e.g. week 3 premium"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button class="src-btn active-bought" id="src-bought" onclick="setSource('bought')">💵 Purchased</button>
+          <button class="src-btn" id="src-premium" onclick="setSource('premium')">🔄 From Premium</button>
+        </div>
+        <button class="btn btn-primary" onclick="addLot()">+ Add Lot</button>
+      </div>
+
+      <div class="card">
+        <div class="label" style="margin-bottom:14px">ALL LOTS</div>
+        <div id="lots-list"></div>
+      </div>
+
+      <div class="summary-card">
+        <div class="label" style="color:rgba(0,255,135,0.7);margin-bottom:14px">COST BASIS SUMMARY</div>
+        <div id="cost-summary"></div>
+      </div>
+    </div>
+
+    <!-- MILESTONES TAB -->
+    <div id="tab-milestones" class="tab-content">
+      <div class="card">
+        <div class="label" style="color:rgba(0,255,135,0.7);margin-bottom:4px">MILESTONE PROJECTIONS</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:16px" id="m-subtitle"></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Shares</th><th>Month</th><th>Wkly $</th><th>Annual $</th><th>Cumulative</th></tr></thead>
+            <tbody id="milestones-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:14px">WHY IT ACCELERATES</div>
+        <div id="accel-list"></div>
+      </div>
+    </div>
+
+    <!-- 10-YEAR TAB -->
+    <div id="tab-tenyear" class="tab-content">
+      <div class="grid2" style="margin-bottom:14px" id="tenyear-stats"></div>
+      <div class="card">
+        <div class="label" style="margin-bottom:14px">SHARES GROWTH</div>
+        <svg id="chart-shares" viewBox="0 0 560 180" style="width:100%;height:auto"></svg>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:14px">WEEKLY PREMIUM INCOME</div>
+        <svg id="chart-premium" viewBox="0 0 560 180" style="width:100%;height:auto"></svg>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:14px">YEAR BY YEAR</div>
+        <div id="year-by-year"></div>
+      </div>
+    </div>
+
+    <!-- CONTENT TAB -->
+    <div id="tab-content" class="tab-content">
+      <div class="card">
+        <div class="label" style="color:rgba(0,255,135,0.7);margin-bottom:4px">CAPTION GENERATOR</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:16px">Live numbers auto-filled. Tap to copy.</div>
+        <div id="captions-list"></div>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:14px">SERIES IDEAS</div>
+        <div class="idea-row"><div style="font-size:22px;flex-shrink:0">📹</div><div><div style="font-weight:700;font-size:14px;margin-bottom:3px">Monday Update Reel</div><div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5">Screen record this tracker, talk over the numbers. Post every Monday morning.</div></div></div>
+        <div class="idea-row"><div style="font-size:22px;flex-shrink:0">🎯</div><div><div style="font-weight:700;font-size:14px;margin-bottom:3px">Milestone Unlock</div><div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5">Every 100 shares is a celebration post. Build hype around each one.</div></div></div>
+        <div class="idea-row"><div style="font-size:22px;flex-shrink:0">💸</div><div><div style="font-weight:700;font-size:14px;margin-bottom:3px">Cost Basis Reveal</div><div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5">"Started HOOD at $106. My actual average cost after premium reinvestment? Watch."</div></div></div>
+        <div class="idea-row"><div style="font-size:22px;flex-shrink:0">📊</div><div><div style="font-weight:700;font-size:14px;margin-bottom:3px">The 10-Year Chart</div><div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5">Post the projection. "This is what happens if I never stop." Nobody resists that.</div></div></div>
+        <div class="idea-row"><div style="font-size:22px;flex-shrink:0">🔴</div><div><div style="font-weight:700;font-size:14px;margin-bottom:3px">Assignment Day</div><div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5">If you get called away or assigned, film it. Losses are 10x more engaging than wins.</div></div></div>
+        <div class="idea-row"><div style="font-size:22px;flex-shrink:0">🎓</div><div><div style="font-weight:700;font-size:14px;margin-bottom:3px">Wheel 101</div><div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5">"Nobody taught me this in school. Here's exactly how the options wheel works in 60 seconds."</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let state = {
+  lots: [{id:'1',shares:100,price:106,source:'bought',date:today(),note:''}],
+  hoodPrice: 106,
+  premium: 200,
+};
+let newSource = 'bought';
+
+function today(){ return new Date().toISOString().split('T')[0]; }
+
+function load(){
+  try{ const s=localStorage.getItem('wheeltrack_v2'); if(s){state={...state,...JSON.parse(s)};} }catch(e){}
+}
+function save(){
+  try{ localStorage.setItem('wheeltrack_v2',JSON.stringify(state)); }catch(e){}
+}
+function saveAndRender(){
+  state.hoodPrice = parseFloat(document.getElementById('s-hood-price').value)||106;
+  state.premium = parseFloat(document.getElementById('s-premium').value)||200;
+  save(); render();
+}
+
+// ─── DERIVED ─────────────────────────────────────────────────────────────────
+function derived(){
+  const lots=state.lots;
+  const totalShares=lots.reduce((s,l)=>s+(parseFloat(l.shares)||0),0);
+  const totalCost=lots.reduce((s,l)=>s+(parseFloat(l.shares)||0)*(parseFloat(l.price)||0),0);
+  const avgCost=totalShares>0?totalCost/totalShares:0;
+  const bLots=lots.filter(l=>l.source==='bought');
+  const pLots=lots.filter(l=>l.source==='premium');
+  const bSh=bLots.reduce((s,l)=>s+(parseFloat(l.shares)||0),0);
+  const pSh=pLots.reduce((s,l)=>s+(parseFloat(l.shares)||0),0);
+  const bCost=bLots.reduce((s,l)=>s+(parseFloat(l.shares)||0)*(parseFloat(l.price)||0),0);
+  const pCost=pLots.reduce((s,l)=>s+(parseFloat(l.shares)||0)*(parseFloat(l.price)||0),0);
+  const bAvg=bSh>0?bCost/bSh:0;
+  const pAvg=pSh>0?pCost/pSh:0;
+  const contracts=Math.floor(totalShares/100);
+  const weeklyPremium=contracts*state.premium;
+  const mktVal=totalShares*state.hoodPrice;
+  const upl=mktVal-totalCost;
+  const uplPct=totalCost>0?(upl/totalCost)*100:0;
+  const sharesNeeded=Math.max(0,200-totalShares);
+  const weeksTo200=weeklyPremium>0?Math.ceil((sharesNeeded*state.hoodPrice)/weeklyPremium):null;
+  return {totalShares,totalCost,avgCost,bSh,pSh,bCost,pCost,bAvg,pAvg,contracts,weeklyPremium,mktVal,upl,uplPct,sharesNeeded,weeksTo200,
+    progress:Math.min((totalShares/200)*100,100),annual:weeklyPremium*52,yoc:totalCost>0?(weeklyPremium*52/totalCost)*100:0};
+}
+
+// ─── PROJECTION ──────────────────────────────────────────────────────────────
+function project(startShares, years=10){
+  const weeks=years*52;
+  let shares=Math.max(startShares,1),totalPrem=0;
+  const milestones=[],monthly=[];
+  const targets=new Set();
+  for(let m=Math.ceil(shares/100)*100;m<=3000;m+=100) targets.add(m);
+  for(let w=1;w<=weeks;w++){
+    const c=Math.floor(shares/100);
+    const wp=c*state.premium;
+    totalPrem+=wp;
+    shares+=wp/state.hoodPrice;
+    for(const t of [...targets]){
+      if(shares>=t){
+        milestones.push({shares:t,month:Math.round(w/4.33),weeklyPremium:Math.floor(t/100)*state.premium,totalPremium:Math.round(totalPrem)});
+        targets.delete(t);
+      }
+    }
+    if(w%4===0) monthly.push({month:Math.round(w/4.33),shares:Math.round(shares),wp:Math.floor(shares/100)*state.premium});
+  }
+  const fs=Math.round(shares);
+  return {milestones:milestones.slice(0,25),monthly,finalShares:fs,finalWP:Math.floor(fs/100)*state.premium,totalPrem:Math.round(totalPrem)};
+}
+
+// ─── FORMAT ───────────────────────────────────────────────────────────────────
+function fm(n){if(n>=1e6)return`$${(n/1e6).toFixed(2)}M`;if(n>=1000)return`$${(n/1000).toFixed(1)}K`;return`$${Math.round(n).toLocaleString()}`;}
+function fn(n){return n.toLocaleString();}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+function showTracker(){ document.getElementById('page-landing').style.display='none'; document.getElementById('page-tracker').style.display='block'; render(); }
+function showLanding(){ document.getElementById('page-tracker').style.display='none'; document.getElementById('page-landing').style.display='block'; }
+
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  render();
+}
+
+// ─── SOURCE TOGGLE ────────────────────────────────────────────────────────────
+function setSource(src){
+  newSource=src;
+  document.getElementById('src-bought').className='src-btn'+(src==='bought'?' active-bought':'');
+  document.getElementById('src-premium').className='src-btn'+(src==='premium'?' active-premium':'');
+}
+
+// ─── ADD LOT ─────────────────────────────────────────────────────────────────
+function addLot(){
+  const sh=parseFloat(document.getElementById('new-shares').value);
+  const pr=parseFloat(document.getElementById('new-price').value);
+  if(!sh||sh<=0||!pr||pr<=0) return;
+  state.lots.push({id:Date.now().toString(),shares:sh,price:pr,source:newSource,date:document.getElementById('new-date').value||today(),note:document.getElementById('new-note').value||''});
+  document.getElementById('new-shares').value='';
+  document.getElementById('new-price').value='';
+  document.getElementById('new-note').value='';
+  save(); render();
+}
+
+function removeLot(id){ state.lots=state.lots.filter(l=>l.id!==id); save(); render(); }
+
+function updateLot(id,field,val){
+  state.lots=state.lots.map(l=>l.id===id?{...l,[field]:field==='shares'||field==='price'?parseFloat(val)||0:val}:l);
+  save(); render();
+}
+
+// ─── CHART ───────────────────────────────────────────────────────────────────
+function drawChart(svgId, data, yKey, color, fmtY){
+  const svg=document.getElementById(svgId);
+  if(!svg||!data||data.length<2){return;}
+  const W=560,H=180,pl=64,pr=16,pt=16,pb=36,iW=W-pl-pr,iH=H-pt-pb;
+  const xs=data.map(d=>d.month),ys=data.map(d=>d[yKey]);
+  const minX=xs[0],maxX=xs[xs.length-1],minY=0,maxY=Math.max(...ys)*1.1||1;
+  const px=x=>pl+((x-minX)/(maxX-minX||1))*iW;
+  const py=y=>pt+iH-((y-minY)/(maxY-minY||1))*iH;
+  const pts=data.map(d=>`${px(d.month)},${py(d[yKey])}`).join(' ');
+  const area=`${px(minX)},${py(0)} ${pts} ${px(maxX)},${py(0)}`;
+  const gid='g'+svgId+yKey;
+  const ticks=[0,.25,.5,.75,1].map(t=>minY+(maxY-minY)*t);
+  const xTicks=data.filter((_,i)=>i%Math.floor(data.length/5)===0);
+  svg.innerHTML=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity=".25"/><stop offset="100%" stop-color="${color}" stop-opacity=".01"/></linearGradient></defs>`
+    +ticks.map(v=>`<line x1="${pl}" y1="${py(v)}" x2="${W-pr}" y2="${py(v)}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/><text x="${pl-8}" y="${py(v)+4}" text-anchor="end" fill="rgba(255,255,255,0.35)" font-size="10" font-family="sans-serif">${fmtY?fmtY(v):Math.round(v)}</text>`).join('')
+    +xTicks.map(d=>`<text x="${px(d.month)}" y="${H-6}" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="10" font-family="sans-serif">Mo ${d.month}</text>`).join('')
+    +`<polygon points="${area}" fill="url(#${gid})"/><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/><circle cx="${px(maxX)}" cy="${py(ys[ys.length-1])}" r="4" fill="${color}"/>`;
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render(){
+  const d=derived();
+  const proj=project(d.totalShares);
+
+  // Dashboard
+  el('d-total-shares',d.totalShares.toFixed(1));
+  el('d-avg-cost','$'+d.avgCost.toFixed(2));
+  el('d-weekly','$'+d.weeklyPremium.toLocaleString());
+  el('d-bought-shares',d.bSh.toFixed(1));
+  el('d-bought-avg','$'+d.bAvg.toFixed(2));
+  el('d-bought-cost','$'+d.bCost.toFixed(0)+' deployed');
+  el('d-prem-shares',d.pSh.toFixed(1));
+  el('d-prem-avg',d.pSh>0?'$'+d.pAvg.toFixed(2):'—');
+  el('d-prem-note',d.pSh>0?'$'+d.pCost.toFixed(0)+' cost':'add premium lots');
+  el('d-contracts',d.contracts.toString());
+  el('d-contracts-sub',d.contracts*100+' shares');
+  el('d-annual',d.annual>=1000?'$'+(d.annual/1000).toFixed(1)+'K':'$'+d.annual);
+  el('d-yield',d.yoc.toFixed(1)+'%');
+  el('d-mkt-val','$'+Math.round(d.mktVal).toLocaleString());
+  const plEl=document.getElementById('d-pl');
+  if(plEl){plEl.textContent=(d.upl>=0?'+':'')+' $'+Math.round(Math.abs(d.upl)).toLocaleString();plEl.style.color=d.upl>=0?'#00ff87':'#ff5555';}
+  const pctEl=document.getElementById('d-pl-pct');
+  if(pctEl){pctEl.textContent=(d.uplPct>=0?'+':'')+d.uplPct.toFixed(1)+'%';pctEl.style.color=d.upl>=0?'#00ff87':'#ff5555';}
+  el('d-progress-pct',d.progress.toFixed(1)+'%');
+  const fill=document.getElementById('d-progress-fill');
+  if(fill) fill.style.width=d.progress+'%';
+  el('d-progress-label',d.totalShares.toFixed(1)+' / 200 shares');
+  el('d-weeks-to',d.progress>=100?'🎉 Goal reached!':d.weeksTo200?'~'+d.weeksTo200+' weeks':'—');
+
+  // Phases
+  const phases=[100,200,300,400,500,600];
+  const pl=document.getElementById('phases-list');
+  if(pl) pl.innerHTML=phases.map((t,i)=>{
+    const reached=d.totalShares>=t,active=d.totalShares>=t-100&&d.totalShares<t;
+    const dotStyle=reached?'background:linear-gradient(135deg,#00ff87,#00d4ff);color:#000':'background:rgba(255,255,255,'+(active?'0.12':'0.05')+');border:2px solid '+(active?'#00ff87':'transparent');
+    return`<div class="phase-row" style="opacity:${reached||active?1:0.3}">
+      <div class="phase-dot" style="${dotStyle}">${reached?'✓':active?'→':'○'}</div>
+      <div style="flex:1"><div style="font-weight:700;font-size:14px">${t} shares</div><div style="font-size:11px;color:rgba(255,255,255,0.4)">${t/100} contract${t/100>1?'s':''} · $${(t/100*state.premium).toLocaleString()}/wk</div></div>
+      <div style="font-size:13px;font-weight:700;color:#00ff87">$${((t/100)*state.premium*52).toLocaleString()}/yr</div>
+    </div>`;
+  }).join('');
+
+  // Positions — lots list
+  const ll=document.getElementById('lots-list');
+  if(ll) ll.innerHTML=state.lots.length===0?'<div style="color:rgba(255,255,255,0.25);font-size:13px">No lots yet.</div>':state.lots.map(lot=>`
+    <div class="lot-row">
+      <div style="font-size:18px;flex-shrink:0">${lot.source==='premium'?'🔄':'💵'}</div>
+      <input class="small-input" type="number" value="${lot.shares}" oninput="updateLot('${lot.id}','shares',this.value)" style="width:75px">
+      <span style="color:rgba(255,255,255,0.35);font-size:12px">sh @</span>
+      <input class="small-input" type="number" value="${lot.price}" oninput="updateLot('${lot.id}','price',this.value)" style="width:85px">
+      <select onchange="updateLot('${lot.id}','source',this.value)" style="width:auto;padding:8px 10px;font-size:12px">
+        <option value="bought" ${lot.source==='bought'?'selected':''}>Purchased</option>
+        <option value="premium" ${lot.source==='premium'?'selected':''}>Premium</option>
+      </select>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:12px;font-weight:700">$${(lot.shares*lot.price).toFixed(0)}</div>
+        ${lot.date?`<div style="font-size:10px;color:rgba(255,255,255,0.3)">${lot.date}</div>`:''}
+        <button class="remove-btn" onclick="removeLot('${lot.id}')">remove</button>
+      </div>
+    </div>`).join('');
+
+  // Cost summary
+  const cs=document.getElementById('cost-summary');
+  if(cs){
+    const rows=[
+      {label:'Total Shares',val:d.totalShares.toFixed(2)},
+      {label:'Capital Deployed',val:'$'+d.totalCost.toFixed(2)},
+      {label:'Purchased Avg',val:'$'+d.bAvg.toFixed(2)},
+      {label:'Premium Shares Avg',val:d.pSh>0?'$'+d.pAvg.toFixed(2):'—',color:'#00ff87'},
+      {label:'🎯 Blended Avg Cost Basis',val:'$'+d.avgCost.toFixed(2),color:'#00ff87',bold:true},
+    ];
+    cs.innerHTML=rows.map((r,i)=>`<div class="row" style="${i===rows.length-1?'border-bottom:none':''}"><span style="font-size:${r.bold?14:13}px;color:rgba(255,255,255,${r.bold?0.8:0.5});font-weight:${r.bold?700:400}">${r.label}</span><span style="font-size:${r.bold?17:14}px;font-weight:800;color:${r.color||'#fff'}">${r.val}</span></div>`).join('');
+  }
+
+  // Milestones
+  el('m-subtitle',`Starting from ${d.totalShares.toFixed(0)} shares · $${state.premium}/contract/week · HOOD @ $${state.hoodPrice}`);
+  const mb=document.getElementById('milestones-body');
+  if(mb) mb.innerHTML=proj.milestones.map(m=>{
+    const reached=d.totalShares>=m.shares;
+    return`<tr style="background:${reached?'rgba(0,255,135,0.04)':'transparent'}">
+      <td style="font-weight:800;font-size:15px;color:${reached?'#00ff87':'#fff'}">${reached?'✓ ':''} ${m.shares}</td>
+      <td style="color:rgba(255,255,255,0.6)">Mo ${m.month}</td>
+      <td style="color:#00ff87;font-weight:700">$${m.weeklyPremium.toLocaleString()}</td>
+      <td style="color:#60efff;font-weight:700">${fm(m.weeklyPremium*52)}</td>
+      <td style="color:rgba(255,255,255,0.5)">${fm(m.totalPremium)}</td>
+    </tr>`;
+  }).join('');
+
+  const al=document.getElementById('accel-list');
+  if(al){
+    const ap=[[100,200,1],[200,300,2],[300,400,3],[400,500,4]];
+    al.innerHTML=ap.map(([from,to,c],i)=>{
+      const wk=state.premium*c;
+      const mo=Math.round((100*state.hoodPrice)/wk/4.33);
+      return`<div class="row" style="${i===ap.length-1?'border-bottom:none':''}">
+        <div><div style="font-weight:700;font-size:14px">${from}→${to} shares</div><div style="font-size:11px;color:rgba(255,255,255,0.4)">${c} contract${c>1?'s':''} · $${wk}/wk</div></div>
+        <div style="text-align:right"><div style="font-size:16px;font-weight:800;color:#00ff87">~${mo} mo</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">to add 100 shares</div></div>
+      </div>`;
+    }).join('');
+  }
+
+  // 10-Year
+  const ts=document.getElementById('tenyear-stats');
+  if(ts){
+    const stats=[
+      {label:'SHARES IN 10 YEARS',val:fn(proj.finalShares),color:'#fff'},
+      {label:'WEEKLY PREMIUM YR 10',val:fm(proj.finalWP),color:'#00ff87'},
+      {label:'ANNUAL INCOME YR 10',val:fm(proj.finalWP*52),color:'#60efff'},
+      {label:'TOTAL PREMIUM EARNED',val:fm(proj.totalPrem),color:'#fff'},
+    ];
+    ts.innerHTML=stats.map(s=>`<div class="card" style="margin-bottom:0;padding:16px 18px"><div class="label">${s.label}</div><div style="font-size:20px;font-weight:800;color:${s.color}">${s.val}</div></div>`).join('');
+  }
+
+  drawChart('chart-shares',proj.monthly,'shares','#00ff87',v=>v>=1000?`${(v/1000).toFixed(1)}K`:Math.round(v).toString());
+  drawChart('chart-premium',proj.monthly,'wp','#60efff',v=>v>=1000?`$${(v/1000).toFixed(0)}K`:`$${Math.round(v)}`);
+
+  const yby=document.getElementById('year-by-year');
+  if(yby){
+    yby.innerHTML=[1,2,3,4,5,6,7,8,9,10].map(yr=>{
+      const snap=proj.monthly.find(d=>d.month>=yr*12)||proj.monthly[proj.monthly.length-1];
+      return`<div class="row" style="${yr===10?'border-bottom:none':''}">
+        <div style="font-weight:700;font-size:14px;width:56px;color:rgba(255,255,255,0.7)">Year ${yr}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.5)">${snap?fn(snap.shares):'—'} sh</div>
+        <div style="font-size:13px;color:#00ff87;font-weight:700">${snap?fm(snap.wp):'—'}/wk</div>
+        <div style="font-size:13px;color:#60efff;font-weight:700">${snap?fm(snap.wp*52):'—'}/yr</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Content captions
+  const cl=document.getElementById('captions-list');
+  if(cl){
+    const captions=[
+      {id:'c1',label:'📈 Weekly Update',text:`📈 HOOD Wheel Strategy — Week Update\n\n🟢 Total Shares: ${d.totalShares.toFixed(1)}\n💵 Purchased: ${d.bSh} shares @ avg $${d.bAvg.toFixed(2)}\n🔄 Via Premium: ${d.pSh.toFixed(1)} shares @ avg ${d.pSh>0?'$'+d.pAvg.toFixed(2):'—'}\n🎯 Blended Avg Cost: $${d.avgCost.toFixed(2)}\n💰 Weekly Income: $${d.weeklyPremium}/week\n📊 Progress to 200 shares: ${d.progress.toFixed(1)}%\n\nFollowing along? Drop a 🔥\n\n#HOOD #OptionsTrading #WheelStrategy #Investing`},
+      {id:'c2',label:'🎯 Milestone Post',text:`Just hit ${Math.floor(d.totalShares/100)*100} shares on $HOOD 🔥\n\nStarted with ${state.lots[0]?.shares||100} shares @ $${state.lots[0]?.price||106}\nBlended avg cost after premium reinvestment: $${d.avgCost.toFixed(2)}\n\nEvery week I sell a covered call, collect the premium, and buy more shares. The wheel never stops.\n\nNext milestone: ${Math.ceil(d.totalShares/100)*100} shares 👀\n\n#OptionsTrading #WheelStrategy #HOOD #Compounding`},
+      {id:'c3',label:'🎣 Engagement Hook',text:`Most people don't know you can use stocks to pay for more stocks.\n\nI sell covered calls on my $HOOD position every week. The premium I collect goes straight back into more shares.\n\nStarted @ $${state.lots[0]?.price||106}. My average cost? $${d.avgCost.toFixed(2)}.\n\nThe snowball is real. 🏔️\n\nFollow along 👇\n\n#HOOD #WheelStrategy #OptionsIncome #Investing`},
+      {id:'c4',label:'🔢 The Math',text:`The HOOD Wheel — by the numbers 📊\n\n${d.contracts} contract${d.contracts!==1?'s':''} → $${d.weeklyPremium}/week\n$${d.weeklyPremium}/week → ${(d.weeklyPremium/state.hoodPrice).toFixed(1)} new shares added\n${(d.weeklyPremium/state.hoodPrice).toFixed(1)} shares/week → 100 new shares every ~${Math.round(100/(d.weeklyPremium/state.hoodPrice||1))} weeks\n\nOnce I hit 200 shares I run 2 contracts → $${d.weeklyPremium*2}/week\nThat cuts the next 100 shares in HALF the time.\n\nThis is compounding. This is the point.\n\n#HOOD #OptionsTrading #WheelStrategy`},
+    ];
+    cl.innerHTML=captions.map(cap=>`
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px;color:rgba(255,255,255,0.7)">${cap.label}</div>
+        <div class="caption-box">${cap.text}</div>
+        <button class="copy-btn" id="${cap.id}" onclick="copyCaption('${cap.id}',\`${cap.text.replace(/`/g,'\\`')}\`)">Copy Caption</button>
+      </div>`).join('');
+  }
+
+  // Sync settings inputs
+  const hp=document.getElementById('s-hood-price');
+  const pp=document.getElementById('s-premium');
+  if(hp) hp.value=state.hoodPrice;
+  if(pp) pp.value=state.premium;
+}
+
+function el(id,text){ const e=document.getElementById(id); if(e) e.textContent=text; }
+
+function copyCaption(id,text){
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById(id);
+    if(btn){btn.textContent='✓ Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy Caption';btn.classList.remove('copied');},2000);}
+  }).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    const btn=document.getElementById(id);
+    if(btn){btn.textContent='✓ Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy Caption';btn.classList.remove('copied');},2000);}
+  });
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+load();
+document.getElementById('new-date').value=today();
+render();
+</script>
+</body>
+</html>
